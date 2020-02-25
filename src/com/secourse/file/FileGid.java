@@ -5,13 +5,13 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class FileGid {
-    private StringBuilder currentPath = new StringBuilder();
+    private StringBuilder currentPath;
     private Scanner scanner = new Scanner(System.in);
 
     public File pave() {
         while (true) {
             try {
-                choiceRoot();
+                chooseRoot();
                 printCurFileContent();
                 run();
             } catch (Exception e) {
@@ -25,7 +25,6 @@ public class FileGid {
         while (true) {
             String input = scanner.nextLine();
             implInput(input);
-            printCurFileContent();
         }
     }
 
@@ -34,37 +33,42 @@ public class FileGid {
         input = input.trim();
         if (input.startsWith("cd ")) {
             input = input.substring(3);
-            input = input.trim();
-            String[] pathParts = input.split("\\\\");
-            for (String path : pathParts) {
-                if (path.equals("..")) {
-//                    String newPath = currentPath.toString().replaceAll("\\\\[a-zA-Z0-9]*\\\\$", "\\");
-//                    currentPath = new StringBuilder(newPath);
-                    int slashIndex = currentPath.lastIndexOf("\\");
-                    if (slashIndex != -1) {
-                        currentPath.delete(slashIndex - 1, currentPath.length());
-                        slashIndex = currentPath.lastIndexOf("\\");
-                        currentPath.delete(slashIndex + 1, currentPath.length());
-                    } else {
-                        choiceRoot();
-                    }
+            chooseDestination(input);
+        }
+    }
+
+    private void chooseDestination(String input) {
+        input = input.trim();
+        String[] pathParts = input.split("\\\\");
+        for (String path : pathParts) {
+            if (path.equals("..")) {
+                if (currentPath.indexOf("\\") != currentPath.lastIndexOf("\\")) {
+                    String newPath = currentPath.toString().replaceAll("\\\\[a-zA-Z0-9]*\\\\$", "\\\\");
+                    currentPath = new StringBuilder(newPath);
+                    printCurFileContent();
                 } else {
-                    currentPath.append(path).append("\\");
+                    chooseRoot();
                 }
+            } else {
+                currentPath.append(path).append("\\");
+                printCurFileContent();
             }
         }
     }
 
 
-    private void choiceRoot() {
+    private void chooseRoot() {
+        currentPath = new StringBuilder();
         File[] roots = File.listRoots();
         System.out.println(Arrays.toString(roots));
-        String input = scanner.nextLine();
-        for (File file : roots) {
-            String path = file.getPath();
-            if (path.startsWith(input) || path.equalsIgnoreCase(input)) {
-                currentPath.append(path);
-                return;
+        while (currentPath.length() == 0) {
+            String input = scanner.nextLine();
+            for (File file : roots) {
+                String path = file.getPath();
+                if (path.startsWith(input) || path.equalsIgnoreCase(input) || (path).equalsIgnoreCase(input + ":\\")) {
+                    currentPath.append(path);
+                    return;
+                }
             }
         }
     }
@@ -88,13 +92,9 @@ public class FileGid {
     public static void main(String[] args) {
         FileGid gid = new FileGid();
         gid.pave();
-//        String s = "adwqa\\awdawfgvesrvgfer\\qwe\\";
-//        Pattern pattern = Pattern.compile("\\\\[a-zA-Z0-9]*\\\\$");
-//        Matcher matcher = pattern.matcher(s);
-//        System.out.println(matcher.group());
-//
-////        dqwedweq\werfgergfvewr\fcwe\
-//
-//
+
+//        String s = "C:\\adwqa\\awdawfgvesrvgfer\\qwe\\";
+//        System.out.println(s.replaceAll("\\\\[a-zA-Z0-9]*\\\\$", "\\\\"));
+//        return;
     }
 }
